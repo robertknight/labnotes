@@ -6,6 +6,7 @@ import * as Q from 'q';
 import * as request from 'request';
 import * as fs_extra from 'fs-extra';
 
+var hogan = require('hogan');
 var FeedParser = require('feedparser');
 var RSS = require('rss');
 
@@ -19,15 +20,10 @@ interface PlanetAuthors {
 	[name: string]: FeedConfig;
 }
 
-interface RSSFeedOptions {
-	title: string;
-	feed_url: string;
-	site_url: string;
-}
-
 interface PlanetConfig {
 	rssOptions: RSSFeedOptions;
 	authors: PlanetAuthors;
+	templates: {[name:string]: string};
 }
 
 interface FeedMetadata {
@@ -55,7 +51,19 @@ interface ItemFromAuthor {
 	item: FeedItem;
 }
 
-/// Entry for the feed items in the 'rss' library
+// See 'feedOptions' documentation at
+// https://www.npmjs.com/package/rss
+interface RSSFeedOptions {
+	title: string;
+	description: string;
+	feed_url: string;
+	site_url: string;
+	image_url: string;
+	webMaster: string;
+}
+
+// Entry for the feed items in the 'rss' library
+// See 'itemOptions' description at https://www.npmjs.com/package/rss
 interface RSSItem {
 	title: string;
 	description: string;
@@ -116,6 +124,50 @@ function fetchFeeds(config: PlanetConfig) {
 	});
 }
 
+function generateRSSFeed(config: PlanetConfig, items: ItemFromAuthor[]) {
+	let aggregatedFeed: any = new RSS(config.rssOptions);
+	for (let item of items) {
+		let authorFeed = config.authors[item.authorKey];
+		aggregatedFeed.item({
+			title: item.item.title,
+			description: item.item.description,
+			author: authorFeed.name,
+			url: item.item.link,
+			date: Date.parse(item.item.pubdate),
+			guid: item.item.guid
+		});
+	}
+	return aggregatedFeed.xml({indent: true});
+}
+
+function generateFeedHTML(config: PlanetConfig, items: ItemFromAuthor[]) {
+	let context = {
+		title: config.rssOptions.title,
+		description: config.rssOptions.description,
+		feedURL: config.rssOptions.feed_url,
+		items: items.map(item => {
+			let date = <any>(new Date(Date.parse(item.item.pubdate)));
+			let dateStr = <string>date.toLocaleDateString({},{
+				weekday: 'short',
+				day: 'numeric',
+				month:'short',
+				year: 'numeric'
+			});
+			let authorFeed = config.authors[item.authorKey];
+			return {
+				author: authorFeed.name,
+				authorImageURL: authorFeed.image,
+				title: item.item.title,
+				url: item.item.link,
+				content: item.item.description,
+				date: dateStr
+			};
+		})
+	};
+	let template = fs.readFileSync(config.templates['main']).toString();
+	return hogan.compile(template).render(context);
+}
+
 function main() {
 	let config = readConfig('config.js');
 	let items = fetchFeeds(config);
@@ -148,22 +200,22 @@ function main() {
 			}
 		});
 
-		let aggregatedFeed: any = new RSS(config.rssOptions);
-
 		const MAX_ITEMS = 25;
-		for (let item of aggregatedItems.slice(0, MAX_ITEMS)) {
-			let name = config.authors[item.authorKey].name;
-			aggregatedFeed.item({
-				title: item.item.title,
-				description: item.item.description,
-				author: name,
-				url: item.item.link,
-				date: Date.parse(item.item.pubdate),
-				guid: item.item.guid
-			});
+		let mostRecentItems = aggregatedItems.slice(0, MAX_ITEMS);
+
+		// generate RSS feed
+		fs.writeFileSync(`${outputDir}/feed.xml`, generateRSSFeed(config, mostRecentItems));
+
+		// generate HTML view
+		fs.writeFileSync(`${outputDir}/index.html`, generateFeedHTML(config, mostRecentItems));
+		
+		// generate a feed per author
+		for (name of Object.keys(feeds)) {
+			fs.writeFileSync(`${outputDir}/${name}.html`, generateFeedHTML(config, aggregatedItems.filter(item => {
+				return item.authorKey == name;
+			})));
 		}
-		let planetXML = aggregatedFeed.xml({indent: true});
-		fs.writeFileSync(`${outputDir}/feed.xml`, planetXML);
+		
 	}).catch(err => {
 		console.error('generating planet failed: ', err);
 	});
