@@ -4,8 +4,10 @@
 import * as fs from 'fs';
 import * as Q from 'q';
 import * as request from 'request';
+import * as fs_extra from 'fs-extra';
 
 var FeedParser = require('feedparser');
+var RSS = require('rss');
 
 interface FeedConfig {
 	url: string;
@@ -13,8 +15,19 @@ interface FeedConfig {
 	image: string;
 }
 
+interface PlanetAuthors {
+	[name: string]: FeedConfig;
+}
+
+interface RSSFeedOptions {
+	title: string;
+	feed_url: string;
+	site_url: string;
+}
+
 interface PlanetConfig {
-    [name: string]: FeedConfig
+	rssOptions: RSSFeedOptions;
+	authors: PlanetAuthors;
 }
 
 interface FeedMetadata {
@@ -32,11 +45,24 @@ interface FeedMap {
 interface FeedItem {
 	title: string;
 	pubdate: string;
+	description: string;
+	link: string;
+	guid: string;
 }
 
 interface ItemFromAuthor {
 	authorKey: string;
 	item: FeedItem;
+}
+
+/// Entry for the feed items in the 'rss' library
+interface RSSItem {
+	title: string;
+	description: string;
+	url: string;
+	guid: string;
+	author: string;
+	date: Date;
 }
 
 function readConfig(path: string) {
@@ -49,12 +75,12 @@ function fetchFeeds(config: PlanetConfig) {
 	let feeds: FeedMap = {};
 	let fetches: Q.Promise<{}>[] = [];
 
-	Object.keys(config).forEach(name => {
+	Object.keys(config.authors).forEach(name => {
 		let fetch = Q.defer<FeedResult | Error>();
 		fetches.push(fetch.promise);
 
 		let feedParser = new FeedParser([]);
-		let feed = config[name];
+		let feed = config.authors[name];
 		let feedReq = request(feed.url);
 		let items: FeedItem[] = [];
 		let meta: FeedMetadata;
@@ -93,22 +119,25 @@ function fetchFeeds(config: PlanetConfig) {
 function main() {
 	let config = readConfig('config.js');
 	let items = fetchFeeds(config);
+	let outputDir = 'output';
+	fs_extra.mkdirsSync(outputDir);
+
 	items.then(feeds => {
 		// sort entries in chronological order
-		let aggregatedFeed: ItemFromAuthor[] = [];
+		let aggregatedItems: ItemFromAuthor[] = [];
 
 		// aggregate and generate RSS
 		for (name of Object.keys(feeds)) {
 			console.log('fetched %d items from %s', feeds[name].items.length, name);
 			for (let item of feeds[name].items) {
-				aggregatedFeed.push({
+				aggregatedItems.push({
 					authorKey: name,
 					item: item
 				});
 			};
 		}
 
-		aggregatedFeed.sort((a, b) => {
+		aggregatedItems.sort((a, b) => {
 			let dateA = Date.parse(a.item.pubdate);
 			let dateB = Date.parse(b.item.pubdate);
 
@@ -119,11 +148,22 @@ function main() {
 			}
 		});
 
+		let aggregatedFeed: any = new RSS(config.rssOptions);
+
 		const MAX_ITEMS = 25;
-		for (let item of aggregatedFeed.slice(0, MAX_ITEMS)) {
-			let name = config[item.authorKey].name;
-			console.log('%s (%s)', name, item.item.title, item.item.pubdate);
+		for (let item of aggregatedItems.slice(0, MAX_ITEMS)) {
+			let name = config.authors[item.authorKey].name;
+			aggregatedFeed.item({
+				title: item.item.title,
+				description: item.item.description,
+				author: name,
+				url: item.item.link,
+				date: Date.parse(item.item.pubdate),
+				guid: item.item.guid
+			});
 		}
+		let planetXML = aggregatedFeed.xml({indent: true});
+		fs.writeFileSync(`${outputDir}/feed.xml`, planetXML);
 	}).catch(err => {
 		console.error('generating planet failed: ', err);
 	});

@@ -1,18 +1,25 @@
 {
-	"seewah.cheng" : {
-		"name": "See Wah Cheng",
-		"url": "http://seewah.blogspot.com/feeds/posts/default"
+	"rssOptions" : {
+		"title": "Planet Mendeley",
+		"feed_url": "https://robertknight.github.io/planet-mendeley/feed",
+		"site_url": "https://www.mendeley.com"
 	},
-	"carles" : {
-		"name": "Carles Pina",
-		"url": "http://pintant.cat/feed/"
-	},
-	"kubilay" : {
-		"name": "Kubilay Tsil Kara",
-		"url": "http://kubilaykara.blogspot.com/feeds/posts/default"
-	},
-	"kris.jack" : {
-		"name": "Kris Jack",
-		"url": "https://krisjack.wordpress.com/feed/"
+	"authors" : {
+		"seewah.cheng" : {
+			"name": "See Wah Cheng",
+			"url": "http://seewah.blogspot.com/feeds/posts/default"
+		},
+		"carles" : {
+			"name": "Carles Pina",
+			"url": "http://pintant.cat/feed/"
+		},
+		"kubilay" : {
+			"name": "Kubilay Tsil Kara",
+			"url": "http://kubilaykara.blogspot.com/feeds/posts/default"
+		},
+		"kris.jack" : {
+			"name": "Kris Jack",
+			"url": "https://krisjack.wordpress.com/feed/"
+		}
 	}
 }
