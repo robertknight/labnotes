@@ -5,6 +5,7 @@ import * as fs from 'fs';
 import * as Q from 'q';
 import * as request from 'request';
 import * as fs_extra from 'fs-extra';
+import * as commander from 'commander';
 
 var hogan = require('hogan');
 var FeedParser = require('feedparser');
@@ -169,9 +170,27 @@ function generateFeedHTML(config: PlanetConfig, items: ItemFromAuthor[]) {
 }
 
 function main() {
-	let config = readConfig('config.js');
+	let configFile: string;
+	let outputDir: string;
+
+	commander
+	  .version('0.1.0')
+	  .usage('<config> <output>')
+	  .action(function(config, _outputDir) {
+		  configFile = config;
+		  outputDir = _outputDir;
+	  });
+
+	commander.parse(process.argv);
+
+	if (!configFile || !outputDir) {
+		console.error('Config or output dir not specified');
+		process.exit(1);
+	}
+
+	let config = readConfig(configFile);
 	let items = fetchFeeds(config);
-	let outputDir = 'output';
+
 	fs_extra.mkdirsSync(outputDir);
 
 	items.then(feeds => {
