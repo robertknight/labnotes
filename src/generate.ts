@@ -31,6 +31,12 @@ interface FeedMap {
 
 interface FeedItem {
 	title: string;
+	pubdate: string;
+}
+
+interface ItemFromAuthor {
+	authorKey: string;
+	item: FeedItem;
 }
 
 function readConfig(path: string) {
@@ -88,9 +94,35 @@ function main() {
 	let config = readConfig('config.js');
 	let items = fetchFeeds(config);
 	items.then(feeds => {
+		// sort entries in chronological order
+		let aggregatedFeed: ItemFromAuthor[] = [];
+
 		// aggregate and generate RSS
 		for (name of Object.keys(feeds)) {
 			console.log('fetched %d items from %s', feeds[name].items.length, name);
+			for (let item of feeds[name].items) {
+				aggregatedFeed.push({
+					authorKey: name,
+					item: item
+				});
+			};
+		}
+
+		aggregatedFeed.sort((a, b) => {
+			let dateA = Date.parse(a.item.pubdate);
+			let dateB = Date.parse(b.item.pubdate);
+
+			if (dateA == dateB) {
+				return 0;
+			} else {
+				return dateA > dateB ? -1 : 1;
+			}
+		});
+
+		const MAX_ITEMS = 25;
+		for (let item of aggregatedFeed.slice(0, MAX_ITEMS)) {
+			let name = config[item.authorKey].name;
+			console.log('%s (%s)', name, item.item.title, item.item.pubdate);
 		}
 	}).catch(err => {
 		console.error('generating planet failed: ', err);
