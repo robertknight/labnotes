@@ -7,24 +7,26 @@ import * as request from 'request';
 import * as fs_extra from 'fs-extra';
 import * as commander from 'commander';
 
+import * as config from './config';
+
 var hogan = require('hogan');
 var FeedParser = require('feedparser');
 var RSS = require('rss');
 
-interface FeedConfig {
+interface OutputTemplateContext {
+	title: string;
+	description: string;
+	feedURL: string;
+	items: OutputTemplateItem[];
+}
+
+interface OutputTemplateItem {
+	author: string;
+	authorImageURL: string;
+	title: string;
 	url: string;
-	name: string;
-	image: string;
-}
-
-interface PlanetAuthors {
-	[name: string]: FeedConfig;
-}
-
-interface PlanetConfig {
-	rssOptions: RSSFeedOptions;
-	authors: PlanetAuthors;
-	templates: {[name:string]: string};
+	content: string;
+	date: string;
 }
 
 interface FeedMetadata {
@@ -52,17 +54,6 @@ interface ItemFromAuthor {
 	item: FeedItem;
 }
 
-// See 'feedOptions' documentation at
-// https://www.npmjs.com/package/rss
-interface RSSFeedOptions {
-	title: string;
-	description: string;
-	feed_url: string;
-	site_url: string;
-	image_url: string;
-	webMaster: string;
-}
-
 // Entry for the feed items in the 'rss' library
 // See 'itemOptions' description at https://www.npmjs.com/package/rss
 interface RSSItem {
@@ -75,10 +66,10 @@ interface RSSItem {
 }
 
 function readConfig(path: string) {
-	return <PlanetConfig>JSON.parse(fs.readFileSync(path,'utf-8'));
+	return <config.Config>JSON.parse(fs.readFileSync(path,'utf-8'));
 }
 
-function fetchFeeds(config: PlanetConfig) {
+function fetchFeeds(config: config.Config) {
 	let items = Q.defer<FeedMap>();
 
 	let feeds: FeedMap = {};
@@ -125,7 +116,7 @@ function fetchFeeds(config: PlanetConfig) {
 	});
 }
 
-function generateRSSFeed(config: PlanetConfig, items: ItemFromAuthor[]) {
+function generateRSSFeed(config: config.Config, items: ItemFromAuthor[]) {
 	let aggregatedFeed: any = new RSS(config.rssOptions);
 	for (let item of items) {
 		let authorFeed = config.authors[item.authorKey];
@@ -141,8 +132,8 @@ function generateRSSFeed(config: PlanetConfig, items: ItemFromAuthor[]) {
 	return aggregatedFeed.xml({indent: true});
 }
 
-function generateFeedHTML(config: PlanetConfig, items: ItemFromAuthor[]) {
-	let context = {
+function generateFeedHTML(config: config.Config, items: ItemFromAuthor[]) {
+	let context: OutputTemplateContext = {
 		title: config.rssOptions.title,
 		description: config.rssOptions.description,
 		feedURL: config.rssOptions.feed_url,
@@ -194,7 +185,7 @@ function main() {
 	fs_extra.mkdirsSync(outputDir);
 
 	items.then(feeds => {
-		// sort entries in chronological order
+		// sort entries in reverse chronological order
 		let aggregatedItems: ItemFromAuthor[] = [];
 
 		// aggregate and generate RSS

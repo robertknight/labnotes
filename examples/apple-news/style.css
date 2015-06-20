@@ -1,0 +1,102 @@
+body {
+	background:url(https://s3-eu-west-1.amazonaws.com/com.mendeley.external/weblet-profiles/build/539/images/background/wblt-body.png);
+	font-family: "Helvetica Neue","Arial",sans-serif;
+	color: rgba(0,0,0,0.77);
+}
+
+.center-container {
+	max-width: 800px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.feed-header {
+	background: #616161;
+	color: white;
+	height: 80px;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	padding-left: 20px;
+	padding-right: 20px;
+}
+
+.feed-about {
+	padding-left: 10px;
+}
+
+.feed-title {
+	font-size: 19px;
+	margin-bottom: 5px;
+}
+.feed-tagline {
+	font-size: 12px;
+}
+.feed-links {
+	font-size: 10px;
+}
+.feed-links a {
+	text-decoration: none;
+	color: white;
+}
+
+.feed-header-img {
+	display: block;
+}
+
+.item-list {
+	border-left: 1px dotted #ccc;
+	border-right: 1px dotted #ccc;
+	padding-left: 1rem;
+	padding-right: 1rem;
+}
+
+.item {
+	margin-bottom: 20px;
+	background-color: white;
+	padding-top: 5px;
+	padding-bottom: 20px;
+	padding-left: 1rem;
+	padding-right: 1rem;
+	box-shadow: 0px 1px 2px #CCC;
+}
+
+.item-header {
+	padding-bottom: 5px;
+	margin-bottom: 15px;
+	border-bottom: 1px dotted #ccc;
+}
+
+.title {
+	font-size: 24px;
+	margin-top: 10px;
+	margin-bottom: 5px;
+}
+
+.title > a {
+	text-decoration: none;
+	color: rgba(0,0,0,0.8);
+}
+
+/* author and date line */
+.about {
+	color: #999;
+	font-size: 14px;
+}
+
+.author-image-container {
+	float: right;
+	background-color: white;
+}
+
+.author-image {
+	max-height: 56px;
+	border: 1px solid #ccc;
+	padding: 3px;
+}
+
+/* article content */
+.content {
+	float: clear;
+	font-size: 14px;
+}

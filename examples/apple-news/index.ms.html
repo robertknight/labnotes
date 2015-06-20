@@ -1,0 +1,32 @@
+<html>
+<head>
+	<title>{{title}} - {{description}}</title>
+	<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="center-container">
+	<div class="feed-header">
+		<img class="feed-header-img" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjxzdmcgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB4PSIwcHgiIHk9IjBweCINCgkgd2lkdGg9IjE5cHgiIGhlaWdodD0iMjNweCIgdmlld0JveD0iMCAwIDE5IDIzIiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCAxOSAyMyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+DQoJPHBhdGggZmlsbD0iI0ZGRkZGRiIgZD0iTTE3Ljk3NywxNi4zNzJjLTAuMTExLDAuMzM0LTAuMjI5LDAuNjUyLTAuMzU0LDAuOTU5Yy0wLjMwNSwwLjcyMi0wLjY2NiwxLjM4OC0xLjA4MiwxLjk5OA0KCQljLTAuNTcsMC44MzQtMS4wMzUsMS40MDktMS4zOTYsMS43MjljLTAuNTU3LDAuNTI2LTEuMTUyLDAuNzk4LTEuNzkxLDAuODEyYy0wLjQ1OSwwLTEuMDEtMC4xMzQtMS42NTYtMC40MDQNCgkJYy0wLjY0Ni0wLjI3MS0xLjIzOC0wLjQwNi0xLjc4MS0wLjQwNmMtMC41NjksMC0xLjE4MSwwLjEzNi0xLjgzMywwLjQwNnMtMS4xOCwwLjQxNC0xLjU4MiwwLjQyNw0KCQljLTAuNjEyLDAuMDI4LTEuMjIzLTAuMjUtMS44MzMtMC44MzNjLTAuMzg5LTAuMzQ4LTAuODc1LTAuOTQ0LTEuNDU4LTEuNzkyYy0wLjYyNS0wLjkwMi0xLjEzOS0xLjk1LTEuNTQyLTMuMTQ2DQoJCWMtMC40MjktMS4yOTEtMC42NDUtMi41NDEtMC42NDUtMy43NDhjMC0xLjM4OSwwLjI5Mi0yLjU4MywwLjg3NS0zLjU4M2MwLjQ1OC0wLjgwNSwxLjA2OS0xLjQ0LDEuODMzLTEuOTA2DQoJCWMwLjc2NC0wLjQ2NiwxLjU5LTAuNzA0LDIuNDc5LTAuNzE4YzAuNDg2LDAsMS4xMjUsMC4xNTMsMS45MTYsMC40NThzMS4yOTcsMC40NTksMS41MiwwLjQ1OWMwLjE2NywwLDAuNzI5LTAuMTgxLDEuNjg4LTAuNTQyDQoJCWMwLjktMC4zMzQsMS42NjYtMC40NzIsMi4yOTEtMC40MTdjMS42OTMsMC4xNCwyLjk2NSwwLjgyNiwzLjgxMSwyLjA2MmMtMS41MTQsMC45NDQtMi4yNjIsMi4yNjMtMi4yNDgsMy45NTcNCgkJYzAuMDE0LDEuMzE4LDAuNDc5LDIuNDE3LDEuMzk2LDMuMjkxQzE2Ljk5OCwxNS44MzcsMTcuNDYzLDE2LjE1LDE3Ljk3NywxNi4zNzJ6IE0xMy42NDUsMS4xMDUNCgkJYzAuMDE0LDAuMTM5LDAuMDIxLDAuMjc4LDAuMDIxLDAuNDE3YzAsMS4wNDItMC4zNjksMi4wMTQtMS4xMDQsMi45MTVjLTAuODg5LDEuMDctMS45MTgsMS41NTYtMy4wODMsMS40NTkNCgkJQzkuNDY1LDUuNzcxLDkuNDU4LDUuNjM5LDkuNDU4LDUuNTAxYzAtMSwwLjM3Ni0xLjkzOCwxLjEyNi0yLjgxMmMwLjM3NS0wLjQ0MywwLjg1LTAuODEyLDEuNDI4LTEuMTA0DQoJCUMxMi41ODYsMS4yOTMsMTMuMTMxLDEuMTMzLDEzLjY0NSwxLjEwNXoiLz4NCjwvc3ZnPg0K">
+		<div class="feed-about">
+			<div class="feed-title">{{title}}</div>
+			<div class="feed-tagline"></div>
+			<div class="feed-links"><a href="{{feedURL}}">Posts</a></div>
+		</div>
+	</div>
+	<div class="item-list">
+		{{#items}}
+		<div class="item">
+			<div class="item-header">
+				<div class="title"><a href="{{url}}">{{title}}</a></div>
+				<div class="author-image-container"><img class="author-image" src="{{authorImageURL}}"></div>
+				<div class="about">{{author}} - {{date}}</div>
+			</div>
+			<div class="content">
+				{{{content}}}
+			</div>
+		</div>
+		{{/items}}
+	</div>
+</div>
+</body>
+</html>
